@@ -52,7 +52,7 @@ It follows a reactive programming model using Spring WebFlux and stores data in 
 
 ### Inventory Query
 
-* Retrieve highest stock product for each branch of a franchise
+* Retrieve the highest stock product for each branch of a franchise
 
 ---
 
@@ -77,19 +77,23 @@ git clone https://github.com/Joelru/franquicias-backend-accenture.git
 cd franchise-service
 ```
 
-### Configure MongoDB Atlas
+### Configure Environment Variable
 
-Update:
+The application requires a MongoDB Atlas connection string as an environment variable.
 
-```properties
-src/main/resources/application.properties
+#### Windows PowerShell
+
+```powershell
+$env:MONGODB_URI="your_connection_string"
 ```
 
-Add your MongoDB connection string:
+#### Linux / Mac
 
-```properties
-spring.data.mongodb.uri=your_connection_string
+```bash
+export MONGODB_URI="your_connection_string"
 ```
+
+---
 
 ### Run application
 
@@ -116,7 +120,7 @@ docker build -t franchise-service .
 ### Run container
 
 ```bash
-docker run -p 8080:8080 franchise-service
+docker run -p 8080:8080 -e MONGODB_URI="your_connection_string" franchise-service
 ```
 
 ---
@@ -191,6 +195,7 @@ GET `/api/franchises/{franchiseId}/top-stock`
 * HTTP status handling with ResponseStatusException
 * Reusable search methods for branches and products
 * Docker containerization
+* Secure externalized database configuration
 * Reactive non-blocking architecture
 
 ---
