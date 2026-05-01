@@ -2,6 +2,7 @@ package com.accenture.franchise.controller;
 
 import com.accenture.franchise.dto.CreateBranchRequest;
 import com.accenture.franchise.dto.CreateFranchiseRequest;
+import com.accenture.franchise.dto.CreateProductRequest;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.service.FranchiseService;
 import jakarta.validation.Valid;
@@ -26,6 +27,14 @@ public class FranchiseController {
             @PathVariable String franchiseId,
             @Valid @RequestBody CreateBranchRequest request) {
         return service.addBranch(franchiseId, request);
+    }
+
+    @PostMapping("/{franchiseId}/branches/{branchId}/products")
+    public Mono<Franchise> addProduct(
+            @PathVariable String franchiseId,
+            @PathVariable String branchId,
+            @Valid @RequestBody CreateProductRequest request) {
+        return service.addProduct(franchiseId, branchId, request);
     }
 
 }
