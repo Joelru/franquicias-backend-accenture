@@ -6,7 +6,9 @@ import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.model.Product;
 import com.accenture.franchise.repository.FranchiseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -21,12 +23,24 @@ public class FranchiseService {
     private final FranchiseRepository repository;
 
     public Mono<Franchise> createFranchise(CreateFranchiseRequest request) {
-        Franchise franchise = Franchise.builder()
-                .name(request.getName())
-                .branches(new ArrayList<>())
-                .build();
 
-        return repository.save(franchise);
+        return repository.existsByName(request.getName())
+                .flatMap(exists -> {
+                    if (!exists) {
+                        Franchise franchise = Franchise.builder()
+                                .name(request.getName())
+                                .branches(new ArrayList<>())
+                                .build();
+
+                        return repository.save(franchise);
+                    } else {
+                        return Mono.error(new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Franchise already exists"
+                        ));
+                    }
+
+                });
     }
 
     public Mono<Franchise> addBranch(String franchiseId, CreateBranchRequest request) {
