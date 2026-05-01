@@ -48,4 +48,12 @@ public class FranchiseController {
         return service.updateProductStock(franchiseId, branchId, productId, request);
     }
 
+    @DeleteMapping("/{franchiseId}/branches/{branchId}/products/{productId}")
+    public Mono<Franchise> deleteProduct(
+            @PathVariable String franchiseId,
+            @PathVariable String branchId,
+            @PathVariable String productId) {
+
+        return service.deleteProduct(franchiseId, branchId, productId);
+    }
 }
