@@ -1,15 +1,14 @@
 package com.accenture.franchise.controller;
 
-import com.accenture.franchise.dto.CreateBranchRequest;
-import com.accenture.franchise.dto.CreateFranchiseRequest;
-import com.accenture.franchise.dto.CreateProductRequest;
-import com.accenture.franchise.dto.UpdateStockRequest;
+import com.accenture.franchise.dto.*;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.service.FranchiseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/franchises")
@@ -55,5 +54,12 @@ public class FranchiseController {
             @PathVariable String productId) {
 
         return service.deleteProduct(franchiseId, branchId, productId);
+    }
+
+    @GetMapping("/{franchiseId}/top-stock")
+    public Mono<List<TopStockResponse>> getTopStock(
+            @PathVariable String franchiseId) {
+
+        return service.getTopStockProducts(franchiseId);
     }
 }

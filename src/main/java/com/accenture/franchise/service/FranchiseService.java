@@ -1,9 +1,6 @@
 package com.accenture.franchise.service;
 
-import com.accenture.franchise.dto.CreateBranchRequest;
-import com.accenture.franchise.dto.CreateFranchiseRequest;
-import com.accenture.franchise.dto.CreateProductRequest;
-import com.accenture.franchise.dto.UpdateStockRequest;
+import com.accenture.franchise.dto.*;
 import com.accenture.franchise.model.Branch;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.model.Product;
@@ -13,6 +10,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -108,6 +108,32 @@ public class FranchiseService {
 
                     return repository.save(franchise);
                 });
+    }
+
+    public Mono<List<TopStockResponse>> getTopStockProducts(String franchiseId) {
+
+        return repository.findById(franchiseId)
+                .map(franchise ->
+                        franchise.getBranches().stream()
+                                .map(branch -> {
+
+                                    Product topProduct = branch.getProducts().stream()
+                                            .max(Comparator.comparing(Product::getStock))
+                                            .orElse(null);
+
+                                    if (topProduct == null) {
+                                        return null;
+                                    }
+
+                                    return new TopStockResponse(
+                                            branch.getName(),
+                                            topProduct.getName(),
+                                            topProduct.getStock()
+                                    );
+                                })
+                                .filter(Objects::nonNull)
+                                .toList()
+                );
     }
 }
 
