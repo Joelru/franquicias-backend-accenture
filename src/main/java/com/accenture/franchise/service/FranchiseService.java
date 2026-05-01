@@ -103,7 +103,7 @@ public class FranchiseService {
                             .anyMatch(product -> product.getName().equalsIgnoreCase(request.getName()));
 
                     if (exist) {
-                        return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Product already exist"));
+                        return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Product already exists"));
                     }
                     Product product = Product.builder()
                             .id(generateId())
@@ -164,8 +164,8 @@ public class FranchiseService {
 
                     Branch branch = findBranch(franchise, branchId);
 
-                    branch.getProducts().removeIf(product ->
-                            product.getId().equals(productId));
+                    Product product = findProduct(branch, productId);
+                    branch.getProducts().remove(product);
 
                     return repository.save(franchise);
                 });
