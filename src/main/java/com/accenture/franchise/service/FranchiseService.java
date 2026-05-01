@@ -117,6 +117,24 @@ public class FranchiseService {
                 });
     }
 
+    public Mono<Franchise> updateProductName(
+            String franchiseId,
+            String branchId,
+            String productId,
+            UpdateNameRequest request) {
+
+        return repository.findById(franchiseId)
+                .flatMap(franchise -> {
+                    Branch branch = findBranch(franchise, branchId);
+                    Product product = findProduct(branch, productId);
+
+                    product.setName(request.getName());
+
+                    return repository.save(franchise);
+                });
+    }
+
+
     public Mono<Franchise> updateProductStock(
             String franchiseId,
             String branchId,

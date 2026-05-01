@@ -54,6 +54,16 @@ public class FranchiseController {
         return service.addProduct(franchiseId, branchId, request);
     }
 
+    @PutMapping("/{franchiseId}/branches/{branchId}/products/{productId}/name")
+    public Mono<Franchise> updateProductName(
+            @PathVariable String franchiseId,
+            @PathVariable String branchId,
+            @PathVariable String productId,
+            @Valid @RequestBody UpdateNameRequest request) {
+
+        return service.updateProductName(franchiseId, branchId, productId, request);
+    }
+
     @PutMapping("/{franchiseId}/branches/{branchId}/products/{productId}/stock")
     public Mono<Franchise> updateStock(
             @PathVariable String franchiseId,
