@@ -22,6 +22,7 @@ public class FranchiseService {
 
     private final FranchiseRepository repository;
 
+
     public Mono<Franchise> createFranchise(CreateFranchiseRequest request) {
 
         return repository.existsByName(request.getName())
@@ -61,11 +62,7 @@ public class FranchiseService {
     public Mono<Franchise> addProduct(String franchiseId, String branchId, CreateProductRequest request) {
         return repository.findById(franchiseId)
                 .flatMap(franchise -> {
-                    Branch branch = franchise.getBranches().stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Branch not found in the franchise" + franchiseId));
-
+                    Branch branch = findBranch(franchise, branchId);
 
                     Product product = Product.builder()
                             .id(java.util.UUID.randomUUID().toString())
@@ -88,15 +85,9 @@ public class FranchiseService {
         return repository.findById(franchiseId)
                 .flatMap(franchise -> {
 
-                    Branch branch = franchise.getBranches().stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Branch not found in franchise"));
+                    Branch branch = findBranch(franchise, branchId);
 
-                    Product product = branch.getProducts().stream()
-                            .filter(p -> p.getId().equals(productId))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Product not found in branch"));
+                    Product product = findProduct(branch, productId);
 
                     product.setStock(request.getStock());
 
@@ -112,10 +103,7 @@ public class FranchiseService {
         return repository.findById(franchiseId)
                 .flatMap(franchise -> {
 
-                    Branch branch = franchise.getBranches().stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Branch not found"));
+                    Branch branch = findBranch(franchise, branchId);
 
                     branch.getProducts().removeIf(product ->
                             product.getId().equals(productId));
@@ -148,6 +136,20 @@ public class FranchiseService {
                                 .filter(Objects::nonNull)
                                 .toList()
                 );
+    }
+
+    private Branch findBranch(Franchise franchise, String branchId) {
+        return franchise.getBranches().stream()
+                .filter(b -> b.getId().equals(branchId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Branch not found in the franchise"));
+    }
+
+    private Product findProduct(Branch branch, String productId) {
+        return branch.getProducts().stream()
+                .filter(p -> p.getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 }
 
