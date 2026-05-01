@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +59,7 @@ public class FranchiseService {
                     }
 
                     Branch branch = Branch.builder()
-                            .id(java.util.UUID.randomUUID().toString())
+                            .id(generateId())
                             .name(request.getName())
                             .products(new ArrayList<>())
                             .build();
@@ -85,7 +82,7 @@ public class FranchiseService {
                         return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Product already exist"));
                     }
                     Product product = Product.builder()
-                            .id(java.util.UUID.randomUUID().toString())
+                            .id(generateId())
                             .name(request.getName())
                             .stock(request.getStock())
                             .build();
@@ -162,14 +159,27 @@ public class FranchiseService {
         return franchise.getBranches().stream()
                 .filter(b -> b.getId().equals(branchId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Branch not found in the franchise"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Branch not found"
+                ));
     }
 
     private Product findProduct(Branch branch, String productId) {
         return branch.getProducts().stream()
                 .filter(p -> p.getId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"
+                ));
+    }
+
+    private String generateId() {
+        return UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 10);
     }
 }
 
