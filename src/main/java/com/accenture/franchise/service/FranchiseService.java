@@ -19,7 +19,6 @@ public class FranchiseService {
 
     private final FranchiseRepository repository;
 
-
     public Mono<Franchise> createFranchise(CreateFranchiseRequest request) {
 
         return repository.existsByName(request.getName())
@@ -38,6 +37,17 @@ public class FranchiseService {
                         ));
                     }
 
+                });
+    }
+
+    public Mono<Franchise> updateFranchiseName(
+            String franchiseId,
+            UpdateNameRequest request) {
+
+        return repository.findById(franchiseId)
+                .flatMap(franchise -> {
+                    franchise.setName(request.getName());
+                    return repository.save(franchise);
                 });
     }
 
