@@ -3,6 +3,7 @@ package com.accenture.franchise.controller;
 import com.accenture.franchise.dto.CreateBranchRequest;
 import com.accenture.franchise.dto.CreateFranchiseRequest;
 import com.accenture.franchise.dto.CreateProductRequest;
+import com.accenture.franchise.dto.UpdateStockRequest;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.service.FranchiseService;
 import jakarta.validation.Valid;
@@ -35,6 +36,16 @@ public class FranchiseController {
             @PathVariable String branchId,
             @Valid @RequestBody CreateProductRequest request) {
         return service.addProduct(franchiseId, branchId, request);
+    }
+
+    @PutMapping("/{franchiseId}/branches/{branchId}/products/{productId}/stock")
+    public Mono<Franchise> updateStock(
+            @PathVariable String franchiseId,
+            @PathVariable String branchId,
+            @PathVariable String productId,
+            @Valid @RequestBody UpdateStockRequest request) {
+
+        return service.updateProductStock(franchiseId, branchId, productId, request);
     }
 
 }

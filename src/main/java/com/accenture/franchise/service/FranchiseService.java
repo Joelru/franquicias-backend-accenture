@@ -3,6 +3,7 @@ package com.accenture.franchise.service;
 import com.accenture.franchise.dto.CreateBranchRequest;
 import com.accenture.franchise.dto.CreateFranchiseRequest;
 import com.accenture.franchise.dto.CreateProductRequest;
+import com.accenture.franchise.dto.UpdateStockRequest;
 import com.accenture.franchise.model.Branch;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.model.Product;
@@ -55,14 +56,38 @@ public class FranchiseService {
                     Product product = Product.builder()
                             .id(java.util.UUID.randomUUID().toString())
                             .name(request.getName())
-                            .stock(request.getStock().toString())
+                            .stock(request.getStock())
                             .build();
 
                     branch.getProducts().add(product);
 
                     return repository.save(franchise);
                 });
+    }
 
+    public Mono<Franchise> updateProductStock(
+            String franchiseId,
+            String branchId,
+            String productId,
+            UpdateStockRequest request) {
+
+        return repository.findById(franchiseId)
+                .flatMap(franchise -> {
+
+                    Branch branch = franchise.getBranches().stream()
+                            .filter(b -> b.getId().equals(branchId))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Branch not found in franchise"));
+
+                    Product product = branch.getProducts().stream()
+                            .filter(p -> p.getId().equals(productId))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Product not found in branch"));
+
+                    product.setStock(request.getStock());
+
+                    return repository.save(franchise);
+                });
     }
 }
 
