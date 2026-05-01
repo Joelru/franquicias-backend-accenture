@@ -47,6 +47,20 @@ public class FranchiseService {
     public Mono<Franchise> addBranch(String franchiseId, CreateBranchRequest request) {
         return repository.findById(franchiseId)
                 .flatMap(franchise -> {
+
+                    boolean exists = franchise.getBranches().stream()
+                            .anyMatch(branch ->
+                                    branch.getName().equalsIgnoreCase(request.getName()));
+
+                    if (exists) {
+                        return Mono.error(
+                                new ResponseStatusException(
+                                        HttpStatus.CONFLICT,
+                                        "Branch already exists"
+                                )
+                        );
+                    }
+
                     Branch branch = Branch.builder()
                             .id(java.util.UUID.randomUUID().toString())
                             .name(request.getName())
@@ -64,6 +78,12 @@ public class FranchiseService {
                 .flatMap(franchise -> {
                     Branch branch = findBranch(franchise, branchId);
 
+                    boolean exist = branch.getProducts().stream()
+                            .anyMatch(product -> product.getName().equalsIgnoreCase(request.getName()));
+
+                    if (exist) {
+                        return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Product already exist"));
+                    }
                     Product product = Product.builder()
                             .id(java.util.UUID.randomUUID().toString())
                             .name(request.getName())
