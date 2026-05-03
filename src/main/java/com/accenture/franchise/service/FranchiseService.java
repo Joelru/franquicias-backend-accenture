@@ -1,6 +1,8 @@
 package com.accenture.franchise.service;
 
 import com.accenture.franchise.dto.*;
+import com.accenture.franchise.exception.DuplicateResourceException;
+import com.accenture.franchise.exception.ResourceNotFoundException;
 import com.accenture.franchise.model.Branch;
 import com.accenture.franchise.model.Franchise;
 import com.accenture.franchise.model.Product;
@@ -31,10 +33,8 @@ public class FranchiseService {
 
                         return repository.save(franchise);
                     } else {
-                        return Mono.error(new ResponseStatusException(
-                                HttpStatus.CONFLICT,
-                                "Franchise already exists"
-                        ));
+                        return Mono.error(
+                                new DuplicateResourceException("Franchise already exists"));
                     }
 
                 });
@@ -61,10 +61,7 @@ public class FranchiseService {
 
                     if (exists) {
                         return Mono.error(
-                                new ResponseStatusException(
-                                        HttpStatus.CONFLICT,
-                                        "Branch already exists"
-                                )
+                                new DuplicateResourceException("Branch already exists")
                         );
                     }
 
@@ -103,7 +100,7 @@ public class FranchiseService {
                             .anyMatch(product -> product.getName().equalsIgnoreCase(request.getName()));
 
                     if (exist) {
-                        return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Product already exists"));
+                        return Mono.error(new DuplicateResourceException("Product already exits"));
                     }
                     Product product = Product.builder()
                             .id(generateId())
@@ -133,7 +130,6 @@ public class FranchiseService {
                     return repository.save(franchise);
                 });
     }
-
 
     public Mono<Franchise> updateProductStock(
             String franchiseId,
@@ -201,20 +197,14 @@ public class FranchiseService {
         return franchise.getBranches().stream()
                 .filter(b -> b.getId().equals(branchId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Branch not found"
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
 
     private Product findProduct(Branch branch, String productId) {
         return branch.getProducts().stream()
                 .filter(p -> p.getId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product not found"
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 
     private String generateId() {

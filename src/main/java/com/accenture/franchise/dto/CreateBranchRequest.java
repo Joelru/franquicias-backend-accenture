@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class CreateBranchRequest {
 
-    @NotBlank
+    @NotBlank(message = "Name is required")
     private String name;
 
 
